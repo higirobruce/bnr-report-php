@@ -1,9 +1,5 @@
+<?php
 
-
-<?php 
-    header('Access-Control-Allow-Origin: *');
-    $pdo = new PDO('oci:dbname=192.168.0.20:1521/cgbk', 'BHIGIRO', 'ABC123456');  
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);  
 ?>
     <!DOCTYPE html>
     <html lang="en">
@@ -16,7 +12,34 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
         <title>Reports</title>
+        <script>
+            function mydate()
+            {
+                //alert("");
+                document.getElementById("dt").hidden=false;
+                document.getElementById("ndt").hidden=true;
+                mydate1()
+            }
+            function mydate1()
+            {
+                d=new Date(document.getElementById("dt").value);
+                dt=d.getDate();
+                mn=d.getMonth();
+                mn++;
+                yy=d.getFullYear();
 
+                document.getElementById("day").value=dt
+                document.getElementById("month").value=mn
+                document.getElementById("year").value=yy
+
+                document.getElementById("ndt").value=dt+"/"+mn+"/"+yy
+                document.getElementById("ndt2").value = document.getElementById("ndt").value
+                document.getElementById("newdate").value = document.getElementById("ndt").value
+
+                // document.getElementById("ndt").hidden=false;
+                // document.getElementById("dt").hidden=true;
+            }
+        </script>
     </head>
     <body>
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -36,94 +59,46 @@
         </nav>
 
         <div class="container">
-            <?php
-            
-            $query = "SELECT * FROM prod.bksld";
-            
-            $stmt = $pdo->prepare($query); 
-            $arr = array();
-            $ret = array();
-            if ($stmt->execute()) {
-
-                ?>
                 <div class="row">
+                    <div class="col-md-4">
+                        
+                    </div>
                     <div class="col-md-4">
                         <br>
                         <br>
-                        <form action="">
+                        <form action="<?php echo $_SERVER['PHP_SELF']?>" method="POST">
                             <div class="form-group">
                                 <label for="">Select the end date</label>
-                                <input type="date" class="form-control">
+                                <!-- <input type="date" name="date" class="form-control"> -->
+                                <input type="date" id="dt" name="dt" onchange="mydate1();" class="form-control" />
+                                <input type="text" id="ndt" name="ndt" onclick="mydate();" class="form-control" hidden />
+                                <input type="button" Value="Date" onclick="mydate();" hidden />
                             </div>
+                            <!-- <div class="form-group">
+                                <button class="btn btn-primary btn-block" type="submit">Submit</button>
+                            </div> -->
+                        </form>
+
+                        <form action="download.php" method="POST">
                             <div class="form-group">
-                                <button class="btn btn-primary btn-block">Submit</button>
+                                <input type="text" id="day" name="day" class="form-control" hidden />
+                                <input type="text" id="month" name="month" class="form-control" hidden />
+                                <input type="text" id="year" name="year" class="form-control" hidden />
+                                
+                                <input type="text" id="ndt2" name="ndt2" class="form-control" hidden />
+                                <input type="text" id="newdate" name="newdate" class="form-control" hidden />
+                                <button class="btn btn-primary btn-block" name="download">Download to EXCEL</button>
                             </div>
                         </form>
                     </div>
 
-                    <div class="col-md-8">
-                        <br><br>
-                        <h4>Preview</h4>
-                        <table class="table">
-                            <tr>
-                                <th>AGE</th>
-                                <th>DEV</th>
-                                <th>DCO</th>
-                                <th>TXIND</th>
-                            </tr>
-
-                            <?php
-                            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                                // print_r('<pre>');
-                                // print_r($row['AGE']);
-                                // print_r('<pre>');
-                                // $s->age = $row['AGE'];
-                                // array_push($ret, $s);
-                                // $arr[] = $row;
-                                //array_push($arr, $row);
-                                //echo json_encode($arr);
-                                echo '
-                                    <tr *ngFor="let r of results">
-                                        <td>'.$row['AGE'].'</td>
-                                        <td>'.$row['DEV'].'</td>
-                                        <td>'.$row['DCO'].'</td>
-                                        <td>'.$row['TXIND'].'</td>
-                                    </tr>
-
-                                ';
-                            }
-                            
-                        }
-                        ?>
-                            
-                            
-                        </table>
+                    <div class="col-md-4">
+                        
                     </div>
                 </div>            
 
-        </div>
+            </div>
     </body>
     </html>
 <?php
-    function getAll(){
-        $query = "SELECT * FROM prod.bksld";
-        
-        $stmt = $pdo->prepare($query); 
-        $arr = array();
-        $ret = array();
-        if ($stmt->execute()) {
-            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                print_r('<pre>');
-                print_r($row['AGE']);
-                print_r('<pre>');
-                $s->age = $row['AGE'];
-                array_push($ret, $s);
-                // $arr[] = $row;
-                //array_push($arr, $row);
-                //echo json_encode($arr);
-            }
-            
-        }
-    }
-?> 
-
+?>
