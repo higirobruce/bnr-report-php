@@ -59,8 +59,8 @@ $objPHPExcel->getProperties()->setCreator("Maarten Balliauw")
 
 
 // CHA
-$query = "SELECT c.cha,c.DEV,count(*) numbers,sum(c.sdecv) sums from (
-    select a.cha,A.DEV,a.sdecv from prod.bksld  a 
+$query = "SELECT c.tcli,c.cha,c.DEV,count(*) numbers,sum(c.sdecv) sums from (
+    select i.tcli,a.cha,a.dev,a.sdecv from prod.bksld  a 
     left join prod.bkcli i on i.cli=a.cli
      where  (
          cha like ? or 
@@ -83,7 +83,7 @@ $query = "SELECT c.cha,c.DEV,count(*) numbers,sum(c.sdecv) sums from (
     and a.dco= ?
     
          UNION ALL
-       select  a.cha,A.DEV,a.sdecv from prod.bksld a
+       select  i.tcli,a.cha,a.dev,a.sdecv from prod.bksld a
       left join prod.bkcli i on i.cli=a.cli
        where (
            cha like ? or 
@@ -93,7 +93,7 @@ $query = "SELECT c.cha,c.DEV,count(*) numbers,sum(c.sdecv) sums from (
     and cha!=? 
     and cha!=? 
     and a.dco=? 
-    AND a.sde<>? ) c group by c.cha,c.DEV";
+    AND a.sde<>? ) c group by c.tcli,c.cha,c.dev";
 
 $stmt = $pdo->prepare($query); 
 $arr = array();
@@ -105,6 +105,7 @@ if(isset($_POST['ndt2']))
     $dco = '30/6/2017';
 }
 
+$cha_cli = array();
 $dev = array();
 $cha = array();
 $numbers = array();
@@ -119,6 +120,7 @@ if ($stmt->execute(array(
     $i = 0;
     $j = 0;
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $cha_cli[] = (int)$row['TCLI'];
         $cha[] = (string)$row['CHA'];
         $dev[] = (int)$row['DEV'];
         $numbers[] = (int)$row['NUMBERS'];
@@ -691,6 +693,39 @@ $objPHPExcel->setActiveSheetIndex(7)
     'AO3'
 );
 
+
+
+//CHA2
+$objPHPExcel->setActiveSheetIndex(7)
+->fromArray(
+    array_chunk($cha_cli, 1),  
+    NULL,       
+    'AQ3'
+);
+$objPHPExcel->setActiveSheetIndex(7)
+->fromArray(
+    array_chunk($cha, 1),  
+    NULL,       
+    'AR3'
+);
+$objPHPExcel->setActiveSheetIndex(7)
+->fromArray(
+    array_chunk($dev, 1),
+    NULL,
+    'AS3'
+);
+$objPHPExcel->setActiveSheetIndex(7)
+->fromArray(
+    array_chunk($numbers, 1),
+    NULL,
+    'AT3'
+);
+$objPHPExcel->setActiveSheetIndex(7)
+->fromArray(
+    array_chunk($sums, 1),
+    NULL,        // Array values with this value will not be set
+    'AU3'
+);
 
 // Rename worksheet
 $objPHPExcel->getActiveSheet()->setTitle('CHA');
