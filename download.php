@@ -459,6 +459,57 @@ if ($stmt->execute(array(
 
 
 
+//REGISTER
+$query = "SELECT distinct a.cli,f.ncp,a.nomrest,a.sext gender,
+            a.nid id_passport,a.dna DoB,a.viln,a.depn,t.num phone,
+            m.email,g.lib branch from prod.bkcli a 
+        join prod.bksld c on c.cli=a.cli and c.dco=?
+        left join prod.bktelcli t on t.cli=a.cli and t.typ=?
+        left join prod.bkemacli m on m.cli=a.cli and t.typ=?
+        join prod.bkage g on g.age=a.age
+        join clearinguser.ncp_cli f on trim(f.cli)=trim(a.cli)";
+
+$stmt = $pdo->prepare($query); 
+$arr = array();
+$ret = array();
+if(isset($_POST['ndt2']))
+{
+    $dco = $_POST['ndt2'];
+    $date = $_POST['newdate'];
+
+}else{
+    $dco = '30/6/2017';
+}
+
+$cli7 = array();
+$ncp7 = array();
+$nomrest7 = array();
+$gender = array();
+$id_passport = array();
+$dob = array();
+$viln = array();
+$depn = array();
+$phone = array();
+$email = array();
+$branch = array();
+if ($stmt->execute(array($dco,'002','001')))
+    {
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $cli7[] = (string)$row['CLI'];
+        $ncp7[] = (string)$row['NCP'];
+        $nomrest7[] = (string)$row['NOMREST'];
+        $gender[] = (string)$row['GENDER'];
+        $id_passport[] = (string)$row['ID_PASSPORT'];
+        $dob[] = (string)$row['DOB'];
+        $viln[] = (string)$row['VILN'];
+        $depn[] = (string)$row['DEPN'];
+        $phone[] = (string)$row['PHONE'];
+        $email[] = (string)$row['EMAIL'];
+        $branch[] = (string)$row['BRANCH'];     
+    }
+}
+
+
 $objPHPExcel->setActiveSheetIndex(0)
             ->setCellValue('B4', 'REPORT AS AT '.$_POST['day'].'/'.$_POST['month'].'/'.$_POST['year']);
 
@@ -727,8 +778,77 @@ $objPHPExcel->setActiveSheetIndex(7)
     'AU3'
 );
 
+//Register
+$objPHPExcel->setActiveSheetIndex(6)
+->fromArray(
+    array_chunk($cli7, 1),
+    NULL,        // Array values with this value will not be set
+    'A8'
+);
+
+$objPHPExcel->setActiveSheetIndex(6)
+->fromArray(
+    array_chunk($ncp7, 1),
+    NULL,        // Array values with this value will not be set
+    'B8'
+);
+$objPHPExcel->setActiveSheetIndex(6)
+->fromArray(
+    array_chunk($nomrest7, 1),
+    NULL,        // Array values with this value will not be set
+    'C8'
+);
+$objPHPExcel->setActiveSheetIndex(6)
+->fromArray(
+    array_chunk($gender, 1),
+    NULL,        // Array values with this value will not be set
+    'D8'
+);
+$objPHPExcel->setActiveSheetIndex(6)
+->fromArray(
+    array_chunk($id_passport, 1),
+    NULL,        // Array values with this value will not be set
+    'E8'
+);
+$objPHPExcel->setActiveSheetIndex(6)
+->fromArray(
+    array_chunk($dob, 1),
+    NULL,        // Array values with this value will not be set
+    'F8'
+);
+$objPHPExcel->setActiveSheetIndex(6)
+->fromArray(
+    array_chunk($viln, 1),
+    NULL,        // Array values with this value will not be set
+    'G8'
+);
+$objPHPExcel->setActiveSheetIndex(6)
+->fromArray(
+    array_chunk($depn, 1),
+    NULL,        // Array values with this value will not be set
+    'H8'
+);
+$objPHPExcel->setActiveSheetIndex(6)
+->fromArray(
+    array_chunk($phone, 1),
+    NULL,        // Array values with this value will not be set
+    'I8'
+);
+$objPHPExcel->setActiveSheetIndex(6)
+->fromArray(
+    array_chunk($email, 1),
+    NULL,        // Array values with this value will not be set
+    'J8'
+);
+$objPHPExcel->setActiveSheetIndex(6)
+->fromArray(
+    array_chunk($branch, 1),
+    NULL,        // Array values with this value will not be set
+    'K8'
+);
+
 // Rename worksheet
-$objPHPExcel->getActiveSheet()->setTitle('CHA');
+
 
 
 // Set active sheet index to the first sheet, so Excel opens this as the first sheet
@@ -736,6 +856,7 @@ $objPHPExcel->setActiveSheetIndex(0);
 
 
 // Redirect output to a client’s web browser (Excel2007)
+header('Access-Control-Allow-Origin: *');
 header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 header('Content-Disposition: attachment;filename="DGF REPORTING -COGEBANQUE "'.$dco.'.xlsx"');
 header('Cache-Control: max-age=0');
